@@ -1,0 +1,33 @@
+{
+  "name": "estailus-discord-bot",
+  "version": "3.2.0",
+  "description": "Discord bot with multiples features for a community discord server",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Topocai/Estailus-Discord-Bot.git"
+  },
+  "keywords": [
+    "Discord",
+    "Bot",
+    "JavaScript",
+    "YoutubeAPI",
+    "TwitchAPI"
+  ],
+  "author": "Topocai",
+  "license": "AGPL-3.0",
+  "bugs": {
+    "url": "https://github.com/Topocai/Estailus-Discord-Bot/issues"
+  },
+  "homepage": "https://github.com/Topocai/Estailus-Discord-Bot#readme",
+  "dependencies": {
+    "discord.js": "^14.10.2",
+    "dotenv": "^16.0.3",
+    "mongoose": "^5.10.7",
+    "node-fetch": "^2.6.6",
+    "node-twitch": "^0.4.5"
+  }
+}
