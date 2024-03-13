@@ -4,7 +4,7 @@ const Discord = require('discord.js');
 const { LOCAL_COMMANDS_NAME, NORMAL_COMMANDS_NAME } = require('../../variables.js');
 
 const config = require('../../config.json');
-const commandName = config.LOCAL_MODE ? LOCAL_COMMANDS_NAME.ELECTION : NORMAL_COMMANDS_NAME.EKECTION;
+const commandName = config.LOCAL_MODE ? LOCAL_COMMANDS_NAME.ELECTION : NORMAL_COMMANDS_NAME.ELECTION;
 
 module.exports = {
     data: new SlashCommandBuilder()
