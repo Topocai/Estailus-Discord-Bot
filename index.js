@@ -91,15 +91,9 @@ module.exports = { addCommandToClient, CommandCategory, CommandObject, commandsH
 
 //===================================================INICIALIZACIÓN DEL BOT====================================//
 
-//Reestablece la cache de las interacciones, para arreglar el bug de interacciones duplicadas
-client.application.commands.set([]) //<- Toma alrededor de una hora en hacer efecto
-guild.commands.set([]) //<- Instantaneo
-
 client.once('ready', async () => 
 {
   console.log(`El bot se ha iniciado`);
-
-  
 
   const rest = new REST({version: 10}).setToken(process.env.TOKEN);
 
