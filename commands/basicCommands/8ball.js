@@ -1,9 +1,10 @@
 const Discord = require("discord.js");
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { NORMAL_COMMANDS_NAME, LOCAL_COMMANDS_NAME } = require("../../variables.js");
 
 module.exports = {
     data: new SlashCommandBuilder()
-    .setName("8ball")
+    .setName(LOCAL_COMMANDS_NAME.BALL)
     .setDescription("Preguntale lo que quieras a la bola y ella te respondera")
     .addStringOption((textOption) => textOption.setName("pregunta").setDescription("Pregunta la cual responder").setRequired(true)),
     cooldown: 10,

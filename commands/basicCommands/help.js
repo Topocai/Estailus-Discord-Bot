@@ -3,75 +3,37 @@ const Discord = require('discord.js');
 
 const index = require('../../index.js');
 
+const { COMMANDS_CATEGORY, COMMAND_CATEGORY_DISPLAY_NAMES, COMMAND_CATEGORY_DESCRIPTIONS, GetKeyByValue } = require('../variables.js');
+
 module.exports = {
     data: new SlashCommandBuilder()
-    .setName("help")
+    .setName(LOCAL_COMMANDS_NAME.HELP)
     .setDescription("Lista de comandos"),
     cooldown: 20,
+    category: "utility",
     async execute(interaction, client) {
-        const commands = index.commands;
+        const categories = index.commandsHandler.categories.map(category => category);
 
-        const basicCommands = index.basicCommands;
-        const notifyCommands = index.notifyCommands;
-
-        let commandsListed = [];
-        let otherCommandsString = ``;
-        let basicCommandsString = ``;
-        let notifyCommandsString = ``;
-
-        for (const item of basicCommands) 
-        {
-            if(commandsListed.includes(item.name)) continue;
-
-            const currentInteraction = client.interactionsList.get(item.name);
-            basicCommandsString += `> </${item.name}:${currentInteraction.id}> : ${item.description}\n`;
-
-            commandsListed.push(item.name);
-        }
-
-        for (const item of notifyCommands) 
-        {
-            if(commandsListed.includes(item.name)) continue;
-
-            const currentInteraction = client.interactionsList.get(item.name);
-            notifyCommandsString += `> </${item.name}:${currentInteraction.id}> : ${item.description}\n`;
-
-            commandsListed.push(item.name);
-        }
-
-        for(const item of commands) 
-        {
-            const currentInteraction = client.interactionsList.get(item.name);
-
-            if(!commandsListed.includes(item.name)) otherCommandsString += `> </${item.name}:${currentInteraction.id}> : ${item.description}\n`;
-
-            commandsListed.push(item.name);
-        }
-
+        //Crea las opciones del select menu, una por cada categoria de comandos
+        const embedOptions = categories.map(category => {
+            const option = new Discord.StringSelectMenuOptionBuilder({
+                label: COMMAND_CATEGORY_DISPLAY_NAMES[GetKeyByValue(COMMANDS_CATEGORY, category.name)],
+                description: COMMAND_CATEGORY_DESCRIPTIONS[GetKeyByValue(COMMANDS_CATEGORY, category.name)],
+                value: category.name
+            });
+            return option
+        });
 
         //==========================OPCIONES==========================//
         const selectMenu = new Discord.StringSelectMenuBuilder()
         .setCustomId("selectMenu")
         .setPlaceholder("Secciones")
-        .addOptions(
-            new Discord.StringSelectMenuOptionBuilder()
-            .setLabel("Comandos Basicos")
-            .setDescription("Lista de comandos basicos o de diversión")
-            .setValue("basic_commands"),
-            new Discord.StringSelectMenuOptionBuilder()
-            .setLabel("Comandos de notificación")
-            .setDescription("Comandos utilizados para la configuración de los notificadores")
-            .setValue("notify_commands"),
-            new Discord.StringSelectMenuOptionBuilder()
-            .setLabel("Otros")
-            .setDescription("Comandos sin categoria")
-            .setValue("other_commands")
-        )
+        .addOptions(embedOptions.map(option => option))
 
         const row = new Discord.ActionRowBuilder()
         .addComponents(selectMenu);
 
-
+            
         //==========================EMBEDS==========================//
         const mainEmbed = new Discord.EmbedBuilder()
         .setAuthor({name: client.user.username, iconURL: client.user.displayAvatarURL()})
@@ -79,23 +41,23 @@ module.exports = {
         .setDescription("Selecciona una sección de comandos")
         .setTimestamp();
 
-        const basicCommandsEmbed = new Discord.EmbedBuilder()
-        .setAuthor({name: client.user.username, iconURL: client.user.displayAvatarURL()})
-        .setColor("Purple")
-        .setDescription(basicCommandsString)
-        .setTimestamp();
+        // Crea un embed por cada categoría de comandos
+        const embedsPerCategory = categories.map(category => {
+            //Obtiene los comandos de la categoria y crea un string con el nombre y descripción de cada uno
+            const commands = category.commands.map(command => {
+                const currentInteraction = client.interactionsList.get(command.name);
 
-        const notifyCommandsEmbed = new Discord.EmbedBuilder()
-        .setAuthor({name: client.user.username, iconURL: client.user.displayAvatarURL()})
-        .setColor("Purple")
-        .setDescription(notifyCommandsString)
-        .setTimestamp();
+                return `> </${command.name}:${currentInteraction.id}> : ${command.command.description}\n`;
+            });
 
-        const otherCommandsEmbed = new Discord.EmbedBuilder()
-        .setAuthor({name: client.user.username, iconURL: client.user.displayAvatarURL()})
-        .setColor("Purple")
-        .setDescription(otherCommandsString)
-        .setTimestamp();
+            const categoryEmbed = new Discord.EmbedBuilder()
+            .setTitle(COMMAND_CATEGORY_DISPLAY_NAMES[GetKeyByValue(COMMANDS_CATEGORY, category.name)])
+            .setDescription(commands.join("\n"))
+            .setColor("Purple")
+            .setTimestamp();
+
+            return {embedName: category.name, categoryEmbed: categoryEmbed};
+        });
 
         //==============================================INTERACCIÓN====================================================//
         await interaction.reply({embeds: [mainEmbed], components: [row]});
@@ -106,13 +68,9 @@ module.exports = {
 
         collector.on('collect', async i => {
             const selection = i.values[0];
-            const embeds = {
-                "basic_commands": basicCommandsEmbed,
-                "notify_commands": notifyCommandsEmbed,
-                "other_commands": otherCommandsEmbed
-            }
+            const selectedEmbed = embedsPerCategory.find(embedData => embedData.embedName == selection).categoryEmbed;
         
-            await i.update({embeds: [embeds[selection]], components: [row]});
+            await i.update({embeds: [selectedEmbed], components: [row]});
         });
     }
 }

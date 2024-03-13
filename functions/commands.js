@@ -3,7 +3,7 @@ const fs = require('node:fs');
 
 const path = require('path');
 
-async function getAllCommands() 
+async function getAllCommands(inLocalMode = false) 
 {
 
     const commandFiles = fs.readdirSync(path.join(__dirname, '../commands/')).filter(file => file.endsWith(".js"));
@@ -13,19 +13,19 @@ async function getAllCommands()
     for (const file of commandFiles) 
     {
         const command = require(`../commands/${file}`);
-        index.addCommandToClient(command, null);
+        index.addCommandToClient(command);
     }
 
     for (const file of basicCommandsFiles) 
     {
         const command = require(`../commands/basicCommands/${file}`);
-        index.addCommandToClient(command, "basic");
+        index.addCommandToClient(command);
     }
 
     for (const file of notifyCommandsFiles) 
     {
         const command = require(`../commands/notifyCommands/${file}`);
-        index.addCommandToClient(command, "notify");
+        index.addCommandToClient(command);
     }
 }
 

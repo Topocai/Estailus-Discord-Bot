@@ -9,9 +9,11 @@ const emojis = require('../../emojis.json');
 const { replyMSG  }= require('../../functions/embedCreator.js');
 const { twitch } = require('../../functions/loopFunctions/notifications.js');
 
+const { LOCAL_COMMANDS_NAME } = require('../../variables.js');
+
 module.exports = {
     data: new SlashCommandBuilder()
-    .setName("twitch")
+    .setName(LOCAL_COMMANDS_NAME.TWITCH)
     .setDescription("Agrega/quita un canal a las notificaciones de Twitch")
     .setDefaultMemberPermissions(Discord.PermissionFlagsBits.ManageChannels, Discord.PermissionFlagsBits.ManageWebhooks)
     .addSubcommand((sub) => sub

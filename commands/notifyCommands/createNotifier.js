@@ -6,9 +6,11 @@ const index = require('../../index.js');
 const NotifierModel = require('../../models/Notifier.js');
 const mongoose = require('mongoose');
 
+const { LOCAL_COMMANDS_NAME } = require('../../variables.js');
+
 module.exports = {
     data: new SlashCommandBuilder()
-    .setName("notifier")
+    .setName(LOCAL_COMMANDS_NAME.NOTIFIER)
     .setDescription("Agrega los notificadores a la DB")
     .setDefaultMemberPermissions(Discord.PermissionFlagsBits.ManageChannels, Discord.PermissionFlagsBits.ManageWebhooks),
     cooldown: 20,

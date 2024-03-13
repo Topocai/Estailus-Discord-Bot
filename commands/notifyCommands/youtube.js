@@ -11,9 +11,11 @@ const mongoose = require('mongoose');
 
 const fetch = require('node-fetch');
 
+const { LOCAL_COMMANDS_NAME } = require('../../variables.js');
+
 module.exports={
     data: new SlashCommandBuilder()
-    .setName("youtube")
+    .setName(LOCAL_COMMANDS_NAME.YOUTUBE)
     .setDescription("Agrega/quita un canal a las notificaciones de YT")
     .setDefaultMemberPermissions(Discord.PermissionFlagsBits.ManageChannels, Discord.PermissionFlagsBits.ManageWebhooks)
     .addSubcommand((sub) => sub
