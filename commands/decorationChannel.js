@@ -34,7 +34,6 @@ module.exports = {
         if(interaction.options.getSubcommand() == "create") {
             const channelTitle = interaction.options.getString("title");
             const everyoneId = interaction.guild.roles.cache.find(r => r.name === '@everyone').id;
-            console.log(interaction.guild.id)
             const newChannel = await interaction.guild.channels.create({
                 type: Discord.ChannelType.GuildVoice,
                 name: `${channelTitle}`,
@@ -67,7 +66,6 @@ module.exports = {
                     newDecorationChannels.save()
                     .then(async result => 
                     {
-                    //console.log(result)
                     await replyMSG(`:white_check_mark: Canal de decoración **creado con exito**\n> Canal: <#${newChannel.id}>`, interaction);
                         
                     })

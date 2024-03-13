@@ -211,8 +211,6 @@ async function decorationChannels() {
               const MemberCount = guild.memberCount;
               const botsCount = await guild.members.cache.filter(member => member.user.bot).size;
 
-              console.log("Bots: " + botsCount)
-
               titleUpdate = titleUpdate.replace(/{MemberCount}/, `${MemberCount - botsCount}`);
             }
 
@@ -234,7 +232,6 @@ async function decorationChannels() {
             /*
             if(titleUpdate.search(/{FollowCount}/) != -1 && notifier != null && notifier.Twitch != [])  //VARIABLE DE SEGUIDORES EN TWITCH
             {
-              console.log("HEre")
               const twitchUserName = await notifier.Twitch[0].twitchUser;
               const twitchUserData = await twitch.getUsers(`${twitchUserName}`);
               console.log(twitchUserData + "\n\n");
