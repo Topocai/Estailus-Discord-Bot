@@ -29,4 +29,13 @@ async function getAllCommands(inLocalMode = false)
     }
 }
 
-module.exports = {getAllCommands};
+function getCommandName(command) 
+{
+    const { NORMAL_COMMANDS_NAME, LOCAL_COMMANDS_NAME, GetKeyByValue } = require("../variables.js");
+
+    const config = require('../config.json');
+    const commandName = config.LOCAL_MODE ? LOCAL_COMMANDS_NAME[GetKeyByValue(NORMAL_COMMANDS_NAME, command)] : NORMAL_COMMANDS_NAME[GetKeyByValue(NORMAL_COMMANDS_NAME, command)];
+    return commandName
+}
+
+module.exports = {getAllCommands, getCommandName};

@@ -11,10 +11,8 @@ const mongoose = require('mongoose');
 
 const fetch = require('node-fetch');
 
-const { LOCAL_COMMANDS_NAME, NORMAL_COMMANDS_NAME } = require('../../variables.js');
-
-const config = require('../../config.json');
-const commandName = config.LOCAL_MODE ? LOCAL_COMMANDS_NAME.YOUTUBE : NORMAL_COMMANDS_NAME.YOUTUBE;
+const {getCommandName} = require("../../functions/commands.js");
+const commandName = getCommandName("youtube");
 
 module.exports = {
     data: new SlashCommandBuilder()

@@ -3,10 +3,8 @@ const Discord = require('discord.js');
 
 const index = require('../index.js');
 
-const { LOCAL_COMMANDS_NAME, NORMAL_COMMANDS_NAME, COMMANDS_CATEGORY, COMMAND_CATEGORY_DISPLAY_NAMES, COMMAND_CATEGORY_DESCRIPTIONS, GetKeyByValue } = require('../variables.js');
-
-const config = require('../config.json');
-const commandName = config.LOCAL_MODE ? LOCAL_COMMANDS_NAME.HELP : NORMAL_COMMANDS_NAME.HELP;
+const {getCommandName} = require("../functions/commands.js");
+const commandName = getCommandName("help");
 
 module.exports = {
     data: new SlashCommandBuilder()

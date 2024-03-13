@@ -6,10 +6,8 @@ const index = require('../../index.js');
 const NotifierModel = require('../../models/Notifier.js');
 const mongoose = require('mongoose');
 
-const { LOCAL_COMMANDS_NAME, NORMAL_COMMANDS_NAME } = require('../../variables.js');
-
-const config = require('../../config.json');
-const commandName = config.LOCAL_MODE ? LOCAL_COMMANDS_NAME.NOTIFIER : NORMAL_COMMANDS_NAME.NOTIFIER;
+const {getCommandName} = require("../../functions/commands.js");
+const commandName = getCommandName("notifier");
 
 module.exports = {
     data: new SlashCommandBuilder()
