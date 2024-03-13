@@ -77,8 +77,6 @@ client.interactionsList = new Discord.Collection();
 
 function addCommandToClient(command) 
 {
-  command.data.name = config.LOCAL_MODE == true ? LOCAL_COMMANDS_NAME[GetKeyByValue(LOCAL_COMMANDS_NAME, command.data.name)] : NORMAL_COMMANDS_NAME[GetKeyByValue(LOCAL_COMMANDS_NAME, command.data.name)];
-
   client.commands.set(command.data.name, command);
 
   commands.push(command.data.toJSON());

@@ -7,11 +7,14 @@ const { replyMSG } = require('../functions/embedCreator.js');
 const mongoose = require('mongoose');
 const DecorationChannels = require('../models/DecorationChannels.js');
 
-const { LOCAL_COMMANDS_NAME } = require('../variables.js');
+const { LOCAL_COMMANDS_NAME, NORMAL_COMMANDS_NAME } = require('../variables.js');
+
+const config = require('../config.json');
+const commandName = config.LOCAL_MODE ? LOCAL_COMMANDS_NAME.DECORATION_CHANNEL : NORMAL_COMMANDS_NAME.DECORATION_CHANNEL;
 
 module.exports = {
     data: new SlashCommandBuilder()
-    .setName(LOCAL_COMMANDS_NAME.DECORATION_CHANNEL)
+    .setName(commandName)
     .setDefaultMemberPermissions(Discord.PermissionFlagsBits.ManageChannels)
     .addSubcommand((sub) => sub
     .setName("guia")

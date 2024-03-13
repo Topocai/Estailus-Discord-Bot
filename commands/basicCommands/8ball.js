@@ -2,9 +2,12 @@ const Discord = require("discord.js");
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { NORMAL_COMMANDS_NAME, LOCAL_COMMANDS_NAME } = require("../../variables.js");
 
+const config = require('../../config.json');
+const commandName = config.LOCAL_MODE ? LOCAL_COMMANDS_NAME.BALL : NORMAL_COMMANDS_NAME.BALL;
+
 module.exports = {
     data: new SlashCommandBuilder()
-    .setName(LOCAL_COMMANDS_NAME.BALL)
+    .setName(commandName)
     .setDescription("Preguntale lo que quieras a la bola y ella te respondera")
     .addStringOption((textOption) => textOption.setName("pregunta").setDescription("Pregunta la cual responder").setRequired(true)),
     cooldown: 10,

@@ -1,11 +1,14 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const Discord = require('discord.js');
 
-const { LOCAL_COMMANDS_NAME } = require('../../variables.js');
+const { LOCAL_COMMANDS_NAME, NORMAL_COMMANDS_NAME } = require('../../variables.js');
+
+const config = require('../../config.json');
+const commandName = config.LOCAL_MODE ? LOCAL_COMMANDS_NAME.ELECTION : NORMAL_COMMANDS_NAME.EKECTION;
 
 module.exports = {
     data: new SlashCommandBuilder()
-    .setName(LOCAL_COMMANDS_NAME.ELECTION)
+    .setName(commandName)
     .setDescription("Elige una de las dos opciones")
     .addStringOption((stringOpt) => stringOpt.setName("opcion1").setDescription("La primera de las opciones").setRequired(true))
     .addStringOption((stringOpt) => stringOpt.setName("opcion2").setDescription("La segunda de las opciones").setRequired(true)),
