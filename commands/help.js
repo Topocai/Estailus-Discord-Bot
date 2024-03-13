@@ -10,7 +10,7 @@ const commandName = config.LOCAL_MODE ? LOCAL_COMMANDS_NAME.HELP : NORMAL_COMMAN
 
 module.exports = {
     data: new SlashCommandBuilder()
-    .setName('lhelp')
+    .setName(commandName)
     .setDescription("Lista de comandos"),
     cooldown: 20,
     category: "utility",

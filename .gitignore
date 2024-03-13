@@ -132,3 +132,4 @@ dist
 # Topocai
 testCommand.js
 commands/testCommand.js
+config.json
