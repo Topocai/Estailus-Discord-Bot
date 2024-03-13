@@ -1,6 +1,6 @@
 {
   "name": "estailus-discord-bot",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "description": "Discord bot with multiples features for a community discord server",
   "main": "index.js",
   "scripts": {
