@@ -2,10 +2,14 @@ const { SlashCommandBuilder} = require('discord.js');
 const Discord = require('discord.js');
 
 const { replyMSG } = require('../../functions/embedCreator');
+const { LOCAL_COMMANDS_NAME, NORMAL_COMMANDS_NAME } = require('../../variables.js');
+
+const config = require('../../config.json');
+const commandName = config.LOCAL_MODE ? LOCAL_COMMANDS_NAME.BROADCAST : NORMAL_COMMANDS_NAME.BROADCAST;
 
 module.exports = {
     data: new SlashCommandBuilder()
-    .setName("broadcast")
+    .setName(commandName)
     .setDefaultMemberPermissions(Discord.PermissionFlagsBits.Administrator)
     .addSubcommand((sub) => sub
     .setName('text')

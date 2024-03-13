@@ -3,32 +3,90 @@ const { Client, GatewayIntentBits, REST, Routes } = require('discord.js');
 const Discord = require('discord.js');
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers]})
+const config = require('./config.json');
 
 //=======================================Enlistar Comandos==============================//
 
-const { COMMANDS_TYPES } = require('./variables.js')
+const { COMMANDS_CATEGORY, LOCAL_COMMANDS_NAME, NORMAL_COMMANDS_NAME, GetKeyByValue } = require('./variables.js')
 
 const commands = [];
-const basicCommands = [];
-const notifyCommands = [];
+
+function CommandCategory(name)
+{
+  this.name = name;
+  this.commands = []; //Contains CommandObject
+}
+
+function CommandObject(commandJSON, command) 
+{
+  this.name = commandJSON.name;
+  this.category = command.category;
+  this.cooldown = command.cooldown;
+  this.command = commandJSON;
+}
+
+CommandCategory.prototype.addCommand = function (commandJSON, command) 
+{
+  const newCommand = new CommandObject(commandJSON, command)
+  this.commands.push(newCommand);
+}
+
+const commandsHandler = {
+  categories: [], //Contains CommandCategory
+};
+
+commandsHandler.findCategory = function(categoryName) 
+{
+  return this.categories.find(obj => obj.name == categoryName);
+};
+
+commandsHandler.addCategory = function(categoryName) 
+{
+  const category = commandsHandler.findCategory(categoryName);
+
+  if(category) return category;
+  else
+  {
+    const newCategory = new CommandCategory(categoryName);
+    this.categories.push(newCategory);
+
+    return newCategory;
+  }
+};
+
+commandsHandler.addAndOrganizeCommand = function(newCommandJSON, newCommand) 
+{
+  if(!newCommand.category) return commandsHandler.findCategory(COMMANDS_CATEGORY.OTHER_COMMANDS).addCommand(newCommandJSON, newCommand)
+
+  const commandCategory = commandsHandler.findCategory(newCommand.category);
+
+  if(commandCategory) 
+  {
+    commandCategory.addCommand(newCommandJSON, newCommand);
+  } 
+  else 
+  {
+    commandsHandler.addCategory(newCommand.category).addCommand(newCommandJSON, newCommand);
+  }
+};
+
+commandsHandler.addCategory(COMMANDS_CATEGORY.OTHER_COMMANDS);
 
 client.commands = new Discord.Collection();
-
 client.interactionsList = new Discord.Collection();
 
-function addCommandToClient(command, type) 
+function addCommandToClient(command) 
 {
   client.commands.set(command.data.name, command);
 
   commands.push(command.data.toJSON());
-  if (type == null) {}
-  else if(type == COMMANDS_TYPES.BASIC_COMMANDS) basicCommands.push(command.data.toJSON());
-  else if(type == COMMANDS_TYPES.NOTIFY_COMMANDS) notifyCommands.push(command.data.toJSON());
+
+  commandsHandler.addAndOrganizeCommand(command.data.toJSON(), command);
 
   console.log(`Añadido ${command.data.name}`);
 }
 
-module.exports = { addCommandToClient, commands, basicCommands, notifyCommands };
+module.exports = { addCommandToClient, CommandCategory, CommandObject, commandsHandler , client };
 
 
 //===================================================INICIALIZACIÓN DEL BOT====================================//
@@ -41,50 +99,55 @@ client.once('ready', async () =>
 
   const commandsFunctions = require("./functions/commands.js");
   await commandsFunctions.getAllCommands();
-/*
-  try 
-  {
-      console.log(`Cargando ${commands.length} comandos locales.`);
-      await rest.put
-      (
-          Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID),
-          {body: commands}
-      )
-      .then((result) => 
-      {
-        for (const item of result) 
-        {
-          client.interactionsList.set(item.name, item);
-          console.log(`Interacción añadida: \n${item.name}`);
-        }
-      });
 
-  } catch(error) 
+  if(config.LOCAL_MODE) 
   {
-    console.error(`Error al cargar los comandos\n${error}`);
-  }*/
-  try 
-  {
-      console.log(`Cargando ${commands.length} comandos globales.`);
-      await rest.put
-      (
-          Routes.applicationCommands(process.env.CLIENT_ID),
-          {body: commands}
-      )
-      .then((result) => 
-      {
-        for (const item of result) 
+    try
+    {
+        console.log(`Cargando ${commands.length} comandos locales.`);
+        await rest.put
+        (
+            Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID),
+            {body: commands}
+        )
+        .then((result) => 
         {
-          console.log(`Interacción ${item.name} añadida`)
-          client.interactionsList.set(item.name, item);
-        }
-      });
+          for (const item of result) 
+          {
+            client.interactionsList.set(item.name, item);
+            console.log(`Interacción añadida: \n${item.name}`);
+          }
+        });
 
-  } catch(error) 
-  {
-    console.error(`Error al cargar los comandos\n${error}`);
+    } catch(error) 
+    {
+      console.error(`Error al cargar los comandos\n${error}`);
+    }
   }
-
+  else 
+  {
+    try 
+    {
+        console.log(`Cargando ${commands.length} comandos globales.`);
+        await rest.put
+        (
+            Routes.applicationCommands(process.env.CLIENT_ID),
+            {body: commands}
+        )
+        .then((result) => 
+        {
+          for (const item of result) 
+          {
+            console.log(`Interacción ${item.name} añadida`)
+            client.interactionsList.set(item.name, item);
+          }
+        });
+  
+    } catch(error) 
+    {
+      console.error(`Error al cargar los comandos\n${error}`);
+    }
+  }
 });
 
 const DecorationChannels = require('./models/DecorationChannels.js');
