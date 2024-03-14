@@ -97,7 +97,7 @@ async function channelInfoByID(channelID)
         return response.json();
     }).then(async (data) => {;
         if (data.error) return new Error(`Error in fetching of channelInfoByID: (${data.error.code}) ${data.error.message}`);
-        resolve(data.items[0]);
+        return data.items[0];
     }).catch((error) => {
        return new Error(`Error in channelInfoByID fetch: ${error}`);
     });
