@@ -29,10 +29,12 @@ async function twitchNotify(client)
       if (!tconfig) return console.log("Sin registro de servidor en la DB.");
     });
 
-    if (!notifier || notifier.Twitch == []) return;
+    if (!notifier || notifier.Twitch == [] || notifier.Twitch.length == 0) return;
 
     const actualTwitchObjects = await notifier.Twitch;
     const twitchChannelsLength = await notifier.Twitch.length;
+
+    if(twitchChannelsLength < 1) return;
 
     //Se obtiene el APP TOKEN ACCESS y se asigna a la instancia de TwitchAPI
     const tokenCall = await fetch(`https://id.twitch.tv/oauth2/token?client_id=${process.env.TwitchCLIENTID}&client_secret=${process.env.TwitchTOKEN}&grant_type=client_credentials`, {method: 'POST'})
@@ -122,8 +124,7 @@ async function youtubeNotification(client)
     const youtubeUserName = await notifier.Youtube[i].youtubeUserName;
     const lastVideosCount = await notifier.Youtube[i].lastVideosCount;
 
-    const actualLastVideosCount = await customFetchs.youtubeFetchs({ fetchType: variablesNames.YOUTUBE_STRINGS.GET_VIDEOS_COUNT, channelID: youtubeChannelID })
-    .catch(err => console.log("ERROR YOUTUBE NOTIFY:\n" + err));
+    const actualLastVideosCount = await customFetchs.youtubeFetchs({ fetchType: variablesNames.YOUTUBE_STRINGS.GET_VIDEOS_COUNT, channelID: youtubeChannelID });
 
     if(actualLastVideosCount == null || actualLastVideosCount == undefined) return {} 
 
@@ -149,8 +150,7 @@ async function youtubeNotification(client)
       console.log("Count Passed (" + youtubeChannelID + ")");
 
       const lastNotify = await notifier.Youtube[i].lastVideoID;
-      const lastVideoID = await customFetchs.youtubeFetchs({ fetchType: variablesNames.YOUTUBE_STRINGS.GET_LIST_OF_VIDEOS, channelID: youtubeChannelID }, variablesNames.YOUTUBE_STRINGS.OPTION_ONLY_LAST_VIDEO_ID)
-      .catch(err => console.log("ERROR YOUTUBE NOTIFY:\n" + err));
+      const lastVideoID = await customFetchs.youtubeFetchs({ fetchType: variablesNames.YOUTUBE_STRINGS.GET_LIST_OF_VIDEOS, channelID: youtubeChannelID }, variablesNames.YOUTUBE_STRINGS.OPTION_ONLY_LAST_VIDEO_ID);
       
       if(lastVideoID == null || lastVideoID == undefined) return {} 
 
