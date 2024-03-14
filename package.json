@@ -24,7 +24,7 @@
   },
   "homepage": "https://github.com/Topocai/Estailus-Discord-Bot#readme",
   "dependencies": {
-    "discord.js": "^14.10.2",
+    "discord.js": "^14.14.1",
     "dotenv": "^16.0.3",
     "mongoose": "^5.10.7",
     "node-fetch": "^2.6.6",
