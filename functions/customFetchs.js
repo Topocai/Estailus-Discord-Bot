@@ -13,62 +13,62 @@ function traducirDuracion(duracionISO)
     const regex = /PT(\d+)M(\d+)S/;
     const coincidencias = duracionISO.match(regex);
 
-    if (coincidencias) {
+    if (coincidencias) 
+    {
       const minutos = parseInt(coincidencias[1], 10);
       const segundos = parseInt(coincidencias[2], 10);
-      return `${minutos}:${segundos}`;
-    } else {
-      return 'Formato de duración no válido';
-    }
-}
 
-async function defaultFetchBody(fetchURL) //TODO
-{
-    await fetch("https://www.googleapis.com/youtube/v3/channels?key=" + process.env.YOUTUBEAPIKEY + "&part=statistics" + "&id=" + channelID)
-    .then(async (response)=>{
-        return response.json();
-    }).then(async data => {
-        videosCount = data.items[0].statistics.videoCount;
-    });
+      if (segundos < 10)
+        segundos = `0${segundos}`;
+
+      return `${minutos}:${segundos}`;
+    } 
+    else 
+    {
+      console.warn(`Formato de duración no válido: ${duracionISO}`);
+      return '00:00';
+    }
 }
 
 async function videosCountFetch(channelID) 
 {
-    let videosCount = 0;
-    await fetch("https://www.googleapis.com/youtube/v3/channels?key=" + process.env.YOUTUBEAPIKEY + "&part=statistics" + "&id=" + channelID)
+    return await fetch("https://www.googleapis.com/youtube/v3/channels?key=" + process.env.YOUTUBEAPIKEY + "&part=statistics" + "&id=" + channelID)
     .then(async (response)=>{
-        return response.json();
-    }).then(async data => {
-        videosCount = data.items[0].statistics.videoCount;
+        const data = await response.json();
+        if (data.error) return new Error(`Error in fetching of videosCountFetch: (${data.error.code}) ${data.error.message}`);
+        const videosCount = data.items[0].statistics.videoCount;
+        return videosCount;
+    }).catch((error) => {
+        new Error(`Error in videosCountFetch fetch: ${error}`);
     });
-    return videosCount;
 }
 
 async function videoInfo(videoId) 
 {
-    let videoInfo;
-    await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&key=${process.env.YOUTUBEAPIKEY}&id=${videoId}`)
+    return await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&key=${process.env.YOUTUBEAPIKEY}&id=${videoId}`)
     .then(async (response)=>{
-        return response.json();
-    }).then(async data => {
-        videoInfo = data.items[0];
+        const data = await response.json();
+        if (data.error) return new Error(`Error in fetching of videoInfo: (${data.error.code}) ${data.error.message}`);
+        const videoInfo = data.items[0];
         videoInfo.contentDetails.duration = traducirDuracion(videoInfo.contentDetails.duration);
+        return videoInfo;
+    }).catch((error) => {
+        new Error(`Error in videoInfo fetch: ${error}`);
     });
-    return videoInfo;
 }
 
 async function listOfVideos(channelID, dataWanted) 
 {
-    let videos_list;
-    await fetch(`https://www.googleapis.com/youtube/v3/search?key=${process.env.YOUTUBEAPIKEY}&channelId=${channelID}&order=date`)
+    return await fetch(`https://www.googleapis.com/youtube/v3/search?key=${process.env.YOUTUBEAPIKEY}&channelId=${channelID}&order=date`)
     .then(async (response)=>{
-        return response.json();
-    }).then(async (data) => {
-        videos_list = data.items;
+        const data = await response.json();
+        if (data.error) return new Error(`Error in fetching of listOfVideos: (${data.error.code}) ${data.error.message}`);
+        const videos_list = data.items;
+        if(dataWanted == YOUTUBE_STRINGS.OPTION_ONLY_LAST_VIDEO_ID) return videos_list[0].id.videoId;
+        return videos_list;
+    }).catch((error) => {
+        new Error(`Error in listOfVideos fetch: ${error}`);
     });
-
-    if(dataWanted == "nothing") return videos_list;
-    if(dataWanted == YOUTUBE_STRINGS.OPTION_ONLY_LAST_VIDEO_ID) return videos_list[0].id.videoId;
 }
 
 /**
@@ -78,26 +78,29 @@ async function listOfVideos(channelID, dataWanted)
 
 async function channelInfoByUserName(userName) 
 {
-    let channelInfo;
-    await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&maxResults=1&q=${userName}&key=${process.env.YOUTUBEAPIKEY}`) //https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&maxResults=1&q=Tri-Line&key=AIzaSyCsxWVYghOw0c5nWd559ZCBPwNhvAEZmUM
+    return await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&maxResults=2&q=${userName}&key=${process.env.YOUTUBEAPIKEY}`)
     .then(async (response) => {
-        return response.json();
-    }).then(async (data) => {
-        channelInfo = data.items[0];
+        const data = await response.json();
+        if (data.error) return new Error(`Error in fetching of channelInfoByUserName: (${data.error.code}) ${data.error.message}`);
+        const channelInfo = data.items[0];
+        return channelInfo;
+    }).catch((error) => {
+        new Error(`Error in channelInfoByID fetch: ${error}`);
     });
-    return channelInfo;
 }
 
 async function channelInfoByID(channelID) 
 {
-    let channelInfo;
-    await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&maxResults=1&channelId=${channelID}&key=${process.env.YOUTUBEAPIKEY}`) //https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&maxResults=1&q=Tri-Line&key=AIzaSyCsxWVYghOw0c5nWd559ZCBPwNhvAEZmUM
+    
+    return await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&channelId=${channelID}&key=${process.env.YOUTUBEAPIKEY}`)
     .then(async (response) => {
         return response.json();
-    }).then(async (data) => {
-        channelInfo = data.items[0];
+    }).then(async (data) => {;
+        if (data.error) return new Error(`Error in fetching of channelInfoByID: (${data.error.code}) ${data.error.message}`);
+        resolve(data.items[0]);
+    }).catch((error) => {
+       return new Error(`Error in channelInfoByID fetch: ${error}`);
     });
-    return channelInfo;
 }
 
 function youtubeFetchs({ fetchType, channelID, userName, videoId }, ...options) 

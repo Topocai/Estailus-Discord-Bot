@@ -176,13 +176,12 @@ module.exports = {
 
             await replyMSG("Espera un momento para encontrar tu canal de Youtube", interaction, null);
 
-            const YoutubeChannelInfo = await customFetchs.youtubeFetchs({ fetchType: YOUTUBE_STRINGS.GET_CHANNEL_INFO_BY_ID, channelID: ytChannel})
-            .catch( (err) => console.error(err));
+            const YoutubeChannelInfo = await customFetchs.youtubeFetchs({ fetchType: YOUTUBE_STRINGS.GET_CHANNEL_INFO_BY_USERNAME, username: ytChannel});
 
             if(YoutubeChannelInfo == null || YoutubeChannelInfo == undefined) return replyMSG(":x: Usuario no encontrado", interaction);
 
             const youtubeUserID = YoutubeChannelInfo.id.channelId; //Se obtiene el ID del canal de Youtube
-            const channelName = YoutubeChannelInfo.snippet.title; //Se obtiene el nombre del canal de Youtube
+            const channelName = YoutubeChannelInfo.snippet.title || ytChannel; //Se obtiene el nombre del canal de Youtube
 
             const lastVideo = await customFetchs.youtubeFetchs({ fetchType: YOUTUBE_STRINGS.GET_LIST_OF_VIDEOS, channelID: youtubeUserID }, YOUTUBE_STRINGS.OPTION_ONLY_LAST_VIDEO_ID);
 
