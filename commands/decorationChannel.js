@@ -70,25 +70,70 @@ module.exports = {
                 const elementIndex = titleElements.findIndex(element => element.includes(actualVar));
 
                 const args = ALL_VARS[actualVar].hasArgs ? getArg(titleElements[elementIndex]) : null;
-                const variableValue = await ALL_VARS[actualVar].get_function(args);
+                const variableValue = await ALL_VARS[actualVar].get_function(args, {guild_id: interaction.guild.id});
 
                 channelObject.variablesValues[elementIndex] = variableValue;
             }
 
-            channelObject.displayTitle = channelObject.variablesValues.join(' ');
+
+                const hasError = channelObject.variablesValues.find(value => value instanceof Error);
+                if(hasError) return await replyMSG(`:x: **Error** en la variable: ${hasError.message}`, interaction);
+                
+                channelObject.displayTitle = channelObject.variablesValues.join(' ');
             
-            const newChannel = await interaction.guild.channels.create({
-                type: Discord.ChannelType.GuildVoice,
-                name: `${channelTitle}`,
-                permissionOverwrites: [
-                    {
-                        id: everyoneId,
-                        deny: ["Connect"],
-                        allow: ["ViewChannel"]
-                    }
-                ]
-            });
-            }
+                const newChannel = await interaction.guild.channels.create({
+                    type: Discord.ChannelType.GuildVoice,
+                    name: `${channelObject.displayTitle}`,
+                    permissionOverwrites: [
+                        {
+                            id: everyoneId,
+                            deny: ["Connect"],
+                            allow: ["ViewChannel"]
+                        }
+                    ]
+                });
+
+                channelObject.discord_channelID = newChannel.id;
+
+                const DecorationChannelsModel = await DecorationChannels.findOne({
+                    guildID: interaction.guild.id
+                }).exec();
+
+                if(DecorationChannelsModel == null) 
+                {
+                    const newDecorationChannels = new DecorationChannels({
+                        guildID: interaction.guild.id,
+                        channels: [channelObject]
+                    });
+
+                    newDecorationChannels.save()
+                    .then(async () => {
+                        await replyMSG(`:white_check_mark: Canal de decoración **creado con exito**\n> Canal: <#${newChannel.id}>`, interaction);
+                    })
+                    .catch(async err => {
+                        console.log(err);
+                        await replyMSG(":x: Ha **ocurrido un error**, vuelve a intentarlo", interaction);
+                    });
+
+                }
+                else 
+                {
+                    const actualChannels = await DecorationChannelsModel.channels;
+                    actualChannels.push(channelObject);
+
+                    await DecorationChannelsModel.updateOne({
+                        channels: actualChannels
+                    })
+                    .then(async () => {
+                        await replyMSG(`:white_check_mark: Canal de decoración **creado con exito**\n> Canal: <#${newChannel.id}>`, interaction);
+                    })
+                    .catch(async err => {
+                        console.log(err);
+                        await replyMSG(":x: Ha **ocurrido un error**, vuelve a intentarlo", interaction);
+                    });
+
+                }   
+        }
             /*
             
 
