@@ -2,6 +2,26 @@ const fetch = require('node-fetch');
 
 const Discord = require('discord.js');
 
+const twitchFunctionsCaller = async ({...args}, twitchFunction) => {
+  const TwitchAPI = require('node-twitch').default;
+
+  const twitch = new TwitchAPI({
+      client_id: process.env.TwitchCLIENTID,  
+      client_secret: process.env.TwitchTOKEN 
+  });
+
+  const tokenCall = await fetch(`https://id.twitch.tv/oauth2/token?client_id=${process.env.TwitchCLIENTID}&client_secret=${process.env.TwitchTOKEN}&grant_type=client_credentials`, {method: 'POST'})
+    .then((response) => response.json());
+    twitch.access_token = tokenCall.access_token;
+
+    return twitchFunction({twitchAPI: twitch, ...args});
+}
+
+/**
+ * 
+ * @param {string} twitchUserID ID de usuario de Twitch 
+ * @returns {object} Objeto con la información del canal de Twitch
+ */
 const getBroadcasterInfo = async function({ twitchAPI, twitchUserID }) 
 {
     const broadcasterData = await fetch(`https://api.twitch.tv/helix/channels?broadcaster_id=${twitchUserID}`, 
@@ -42,6 +62,12 @@ const getStreamInfo = async function({ twitchAPI, twitchUserLogin })
 
     return streamInfo;
 };
+
+/**
+ * 
+ * @param {string} twitchUserID 
+ * @returns {object} Objeto con la información del usuario de Twitch
+ */
 
 const getUserInfo = async function({ twitchAPI, twitchUserID })  
 {
@@ -186,4 +212,4 @@ function newTitleEmbedCreator({userData, twitchUserDB, isLive, newTitle})
   }
 }
 
-module.exports = { notificationCheck, notificationCreator, newTitleEmbedCreator, getUserInfo }
+module.exports = { notificationCheck, notificationCreator, newTitleEmbedCreator, getUserInfo, getStreamInfo, twitchFunctionsCaller }
