@@ -55,9 +55,7 @@ module.exports = {
         {
             const notifier = await NotifierModel.findOne({
                 guildID: interaction.guild.id
-            }, async (err) => {
-                if(err) return console.error(err);
-            });
+            }).exec();
 
             if(notifier != null) 
             {
@@ -187,13 +185,7 @@ module.exports = {
 
             const notifier = await NotifierModel.findOne({ //Se comprueba si el servidor ya se encuentra en la DB
              guildID: interaction.guild.id
-            }, async (err, dbnotifier) => {
-                if(err) return console.error(err);
-                if(!dbnotifier) 
-                {
-                    //DEVUELVE *Error*
-                }
-            });
+            }).exec();
 
             if(notifier != null) 
             {

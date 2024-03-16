@@ -16,20 +16,18 @@ const twitchFunctions = require('../../functions/twitchFunctions.js');
 const TwitchAPI = require('node-twitch').default;
 
 const twitch = new TwitchAPI({
-    client_id: process.env.TwitchCLIENTID, //ACTUALIZAR VALOR PARA REPLIT 
-    client_secret: process.env.TwitchTOKEN //ACTUALIZAR VALOR PARA REPLIT
+    client_id: process.env.TwitchCLIENTID,  
+    client_secret: process.env.TwitchTOKEN 
 });
 
 async function twitchNotify(client) 
 {
-    const notifier = await NotifierModel.findOne({
-      guildID: process.env.GUILD_ID //ACTUALIZAR VALOR PARA REPLIT
-    }, (err, tconfig) => {
-      if (err) return console.error(err);
-      if (!tconfig) return console.log("Sin registro de servidor en la DB.");
-    });
 
-    if (!notifier || notifier.Twitch == [] || notifier.Twitch.length == 0) return;
+    const notifier = await NotifierModel.findOne({
+      guildID: process.env.GUILD_ID
+    }).exec();
+
+    if (!notifier || notifier.Twitch == [] || notifier.Twitch.length == 0) return console.log("No hay canales de Twitch para notificar");
 
     const actualTwitchObjects = await notifier.Twitch;
     const twitchChannelsLength = await notifier.Twitch.length;
@@ -109,10 +107,7 @@ async function youtubeNotification(client)
 {
   const notifier = await NotifierModel.findOne({
     guildID: process.env.GUILD_ID
-  }, async (err, yconfig) => {
-    if (err) return console.error(err);
-    if (!yconfig) return;
-  });
+  }).exec();
 
   if(notifier == null) return {}
 
