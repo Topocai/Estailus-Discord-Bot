@@ -78,7 +78,7 @@ async function listOfVideos(channelID, dataWanted)
 
 async function channelInfoByUserName(userName) 
 {
-    return await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&maxResults=2&q=${userName}&key=${process.env.YOUTUBEAPIKEY}`)
+    return await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&maxResults=1&q=${userName}&key=${process.env.YOUTUBEAPIKEY}`)
     .then(async (response) => {
         const data = await response.json();
         if (data.error) return new Error(`Error in fetching of channelInfoByUserName: (${data.error.code}) ${data.error.message}`);

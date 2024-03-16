@@ -153,13 +153,9 @@ client.once('ready', async () =>
 const DecorationChannels = require('./models/DecorationChannels.js');
 
 async function decorationChannels() {
-
     const decorationChannels = await DecorationChannels.findOne({
         guildID: process.env.GUILD_ID
-    }, async (err) => 
-    {
-      if(err) return console.error(err);
-    });
+    }).exec();
 
 
     if(decorationChannels == null) {}
@@ -194,10 +190,7 @@ async function decorationChannels() {
 
             const notifier = await NotifierModel.findOne({
               guildID: process.env.GUILD_ID
-            }, err => 
-            {
-              if (err) return console.error(err);
-            });
+            }).exec();
 
             const TwitchAPI = require('node-twitch').default;
 
@@ -313,13 +306,9 @@ client.on('interactionCreate', async interaction =>
 
 const mongoose = require('mongoose');
 
-const dbOptions = {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  useFindAndModify: true,
-};
+let collection = config.LOCAL_MODE ? '': 'EstilistasBot';
 
-mongoose.connect(`mongodb+srv://${process.env.usernameDB}:${process.env.passwordDB}@estilistascluster.s34qj.mongodb.net/EstilistasBot?retryWrites=true&w=majority`, dbOptions);
+mongoose.connect(`mongodb+srv://${process.env.usernameDB}:${process.env.passwordDB}@estilistascluster.s34qj.mongodb.net/${collection}?retryWrites=true&w=majority&appName=EstilistasCluster`).then((s) => console.log("[Mongoose] Conectado correctamente")).catch((e) => console.error(`[Mongoose] Error al conectar\n${e}`));
 
 mongoose.connection.on('connected', () => {
   console.log('¡[Mongoose] se ha conectado correctamente!');

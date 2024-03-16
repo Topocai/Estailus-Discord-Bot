@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 
 const channels = mongoose.Schema({
-    _id: mongoose.Schema.Types.ObjectId,
     guildID: String,
 
     channelDMID: String,
@@ -14,3 +13,4 @@ const channels = mongoose.Schema({
 });
 
 module.exports = mongoose.model("GuildChannels", channels);
+

@@ -49,9 +49,7 @@ module.exports = {
         {
             const notifier = await NotifierModel.findOne({
                 guildID: interaction.guild.id
-            }, async (err) => {
-                if(err) return console.error(err);
-            });
+            }).exec();
 
             if(notifier != null) 
             {
@@ -169,14 +167,8 @@ module.exports = {
             {
                 const notifier = await NotifierModel.findOne({
                     guildID: interaction.guild.id
-                }, (err, tconfig) => 
-                {
-                    if(err) return console.error(err);
-                    if(!tconfig) 
-                    {
-                       /* RETURNS error*/
-                    }
-                });
+                }).exec();
+
                 if(notifier == null || notifier.Twitch == null) 
                 {
                     replyMSG(":x: El servidor aun no fue agregado a la DB o ha ocurrido un error en la misma", interaction);

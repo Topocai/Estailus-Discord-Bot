@@ -16,27 +16,14 @@ module.exports = {
     .setDefaultMemberPermissions(Discord.PermissionFlagsBits.ManageChannels, Discord.PermissionFlagsBits.ManageWebhooks),
     cooldown: 20,
     async execute(interaction, client) {
-       const notifier = await NotifierModel.findOne
-       ({
-        guildID: interaction.guild.id
-       }, async (err, perfil) => 
-       {
-            if(err) return console.error(err);
-            if(!perfil) 
-            {
-                const newPerfil = new NotifierModel
-                ({
-                    _id: mongoose.Types.ObjectId(),
-                    guildID: interaction.guild.id,
-                    Youtube: [],
-                    Twitch: []
-                });
-                newPerfil.save().then(() => interaction.reply("Done"))
-                .catch((err) => {return console.error(err)});
-            } else 
-            {
-                return interaction.reply("Already one");
-            }
-       });
+
+       const newPerfil = new NotifierModel
+        ({
+            guildID: interaction.guild.id,
+            Youtube: [],
+            Twitch: []
+        });
+        newPerfil.save().then(() => interaction.reply("Done"))
+        .catch((err) => {return console.error(err)});
     }
 }

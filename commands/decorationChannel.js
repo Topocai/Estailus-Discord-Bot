@@ -49,34 +49,33 @@ module.exports = {
             const decorationChannels = await DecorationChannels.findOne
             ({
                 guildID: interaction.guild.id
-            }, async (err, guild) => 
-            {
-                if (err) return console.error(err);
-                if (!guild) {
-                    const newDecorationChannels = new DecorationChannels({
-                        _id: mongoose.Types.ObjectId(),
-                        guildID: interaction.guild.id,
-                        channels: (
-                            {
-                                id: newChannel.id,
-                                title: `${channelTitle}`
-                            }
-                        )
-                    });
-                    newDecorationChannels.save()
-                    .then(async result => 
-                    {
-                    await replyMSG(`:white_check_mark: Canal de decoración **creado con exito**\n> Canal: <#${newChannel.id}>`, interaction);
-                        
-                    })
-                    .catch(async err => {
-                    console.log(err)
-                    await replyMSG(":x: Ha **ocurrido un error**, vuelve a intentarlo", interaction);
-                    });
-                }
-            });
+            }).exec();
 
-            if(decorationChannels != null) {
+            if(decorationChannels == null) 
+            {
+                const newDecorationChannels = new DecorationChannels
+                ({
+                    guildID: interaction.guild.id,
+                    channels: (
+                        {
+                            id: newChannel.id,
+                            title: `${channelTitle}`
+                        }
+                    )
+                });
+                newDecorationChannels.save()
+                .then(async () => 
+                {
+                await replyMSG(`:white_check_mark: Canal de decoración **creado con exito**\n> Canal: <#${newChannel.id}>`, interaction);
+                    
+                })
+                .catch(async err => {
+                console.log(err)
+                await replyMSG(":x: Ha **ocurrido un error**, vuelve a intentarlo", interaction);
+                });
+            }
+            else if(decorationChannels != null) 
+            {
                 const newChannelmongoose = {
                     id: newChannel.id,
                     title: `${channelTitle}`
@@ -87,7 +86,7 @@ module.exports = {
                 await decorationChannels.updateOne({
                     channels: newChannels
                 })
-                .then(async result => 
+                .then(async () => 
                 {
                 await replyMSG(`:white_check_mark: Canal de decoración **creado con exito**\n> Canal: <#${newChannel.id}>`, interaction);
                 })

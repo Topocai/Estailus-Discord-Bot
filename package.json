@@ -26,7 +26,7 @@
   "dependencies": {
     "discord.js": "^14.14.1",
     "dotenv": "^16.0.3",
-    "mongoose": "^5.10.7",
+    "mongoose": "^8.2.1",
     "node-fetch": "^2.6.6",
     "node-twitch": "^0.4.5"
   }
