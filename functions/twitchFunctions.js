@@ -11,10 +11,10 @@ const twitchFunctionsCaller = async ({...args}, twitchFunction) => {
   });
 
   const tokenCall = await fetch(`https://id.twitch.tv/oauth2/token?client_id=${process.env.TwitchCLIENTID}&client_secret=${process.env.TwitchTOKEN}&grant_type=client_credentials`, {method: 'POST'})
-    .then((response) => response.json());
-    twitch.access_token = tokenCall.access_token;
+  .then((response) => response.json());
+  twitch.access_token = tokenCall.access_token;
 
-    return twitchFunction({twitchAPI: twitch, ...args});
+  return twitchFunction({twitchAPI: twitch, ...args}).then(data => data).catch(err => new Error(err));
 }
 
 /**
@@ -32,8 +32,10 @@ const getBroadcasterInfo = async function({ twitchAPI, twitchUserID })
         'Client-Id': process.env.TwitchCLIENTID //ACTUALIZAR VALOR PARA REPLIT 
       }
     })
-    .then((response) => response.json())
-    .catch((err) => console.error(err))
+    .then((response) =>  {
+      if(response.ok) return response.json();
+      else throw new Error(response.statusText);
+    })
     .then((channelData) =>  channelData.data[0])
     .catch((err) => console.error(err));
 
@@ -57,9 +59,12 @@ const getStreamInfo = async function({ twitchAPI, twitchUserLogin })
         'Client-Id': process.env.TwitchCLIENTID //ACTUALIZAR VALOR PARA REPLIT 
       }
     })
-    .then((response) => response.json())
-    .then((streamsInfo) =>  streamsInfo.data[0]);
-
+    .then((response) =>  {
+      if(response.ok) return response.json();
+      else throw new Error(response.statusText);
+    })
+    .then((streamsInfo) =>  streamsInfo.data[0])
+    .catch((err) => new Error(err));
     return streamInfo;
 };
 
@@ -79,7 +84,10 @@ const getUserInfo = async function({ twitchAPI, twitchUserID })
         'Client-Id': process.env.TwitchCLIENTID//ACTUALIZAR VALOR PARA REPLIT 
       }
     })
-    .then((response) => response.json())
+    .then((response) =>  {
+      if(response.ok) return response.json();
+      else throw new Error(response.statusText);
+    })
     .then((usersInfo) =>  usersInfo.data[0]);
 
     return userInfo;

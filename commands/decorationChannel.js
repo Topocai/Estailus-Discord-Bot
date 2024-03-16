@@ -12,8 +12,6 @@ const commandName = getCommandName("decorationchannel");
 
 const { ALL_VARS, TWITCH_VARS, getArg, categories } = require('../functions/decorationChannels/decoration-vars.js');
 const { DecorationChannelObject } = require('../functions/decorationChannels/DecorationChannelObjects.js');
-const twitchFunctions = require('../functions/twitchFunctions.js');
-const { twitchFunctionsCaller } = require('../functions/twitchFunctions.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -46,11 +44,11 @@ module.exports = {
             const titleElements = fixedTitle.split('-');
             const titleVars = Object.keys(ALL_VARS).filter(key => titleElements.map(element => element.includes(key)).includes(true));
 
-            if(titleVars > 2) return await replyMSG(":x: **Error**, solo se pueden usar dos variable por canal.", interaction);
+            if(titleVars > 2) return await replyMSG(":x: **Error**: solo se pueden usar dos variable por canal.", interaction);
+            if(titleVars.length == 0) return await replyMSG(":x: **Error**: no se han encontrado variables en el titulo.", interaction);
 
             //await replyMSG(":information_source: Espera un momento para evaluar tus variables", interaction);
 
-            const channelCategories = Object.keys(categories).filter(categoryName => titleVars.map(v => Object.keys(categories[categoryName]).includes(v)).includes(true));
             /**
              * this.discord_channelID = null;
                 this.titleElements = titleElements;
@@ -62,7 +60,7 @@ module.exports = {
 
             channelObject.titleElements = titleElements;
             channelObject.variablesValues = [...titleElements];
-            channelObject.variablesCategories = channelCategories;
+            channelObject.variables = [...titleVars];
 
             for(let i = 0; i < titleVars.length; i++) 
             {
@@ -77,7 +75,7 @@ module.exports = {
 
 
                 const hasError = channelObject.variablesValues.find(value => value instanceof Error);
-                if(hasError) return await replyMSG(`:x: **Error** en la variable: ${hasError.message}`, interaction);
+                if(hasError) return await replyMSG(`:x: **Error**: Hubo un error en un pseudo valor de una variable, asegurate de haber escrito correctamente el valor luego de los ":"`, interaction);
                 
                 channelObject.displayTitle = channelObject.variablesValues.join(' ');
             
@@ -119,7 +117,7 @@ module.exports = {
                 else 
                 {
                     const actualChannels = await DecorationChannelsModel.channels;
-                    actualChannels.push(channelObject);
+                    actualChannels.push(channelObject); 
 
                     await DecorationChannelsModel.updateOne({
                         channels: actualChannels
@@ -134,60 +132,5 @@ module.exports = {
 
                 }   
         }
-            /*
-            
-
-            const decorationChannels = await DecorationChannels.findOne
-            ({
-                guildID: interaction.guild.id
-            }).exec();
-
-            if(decorationChannels == null) 
-            {
-                const newDecorationChannels = new DecorationChannels
-                ({
-                    guildID: interaction.guild.id,
-                    channels: (
-                        {
-                            id: newChannel.id,
-                            title: `${channelTitle}`
-                        }
-                    )
-                });
-                newDecorationChannels.save()
-                .then(async () => 
-                {
-                await replyMSG(`:white_check_mark: Canal de decoración **creado con exito**\n> Canal: <#${newChannel.id}>`, interaction);
-                    
-                })
-                .catch(async err => {
-                console.log(err)
-                await replyMSG(":x: Ha **ocurrido un error**, vuelve a intentarlo", interaction);
-                });
-            }
-            else if(decorationChannels != null) 
-            {
-                const newChannelmongoose = {
-                    id: newChannel.id,
-                    title: `${channelTitle}`
-                };
-                let newChannels = await decorationChannels.channels;
-                newChannels.push(newChannelmongoose);
-
-                await decorationChannels.updateOne({
-                    channels: newChannels
-                })
-                .then(async () => 
-                {
-                await replyMSG(`:white_check_mark: Canal de decoración **creado con exito**\n> Canal: <#${newChannel.id}>`, interaction);
-                })
-                .catch(async err => 
-                {
-                console.log(err)
-                await replyMSG(":x: Ha **ocurrido un error**, vuelve a intentarlo", interaction);
-                });
-            }
-            //interaction.guild.channels.create({type: Discord.ChannelType.GuildVoice, permissionOverwrites: [{id: 355877466415431683, deny: ["Connect"], allow: ["ViewChannel"]}]})
-        }*/
     }
 }

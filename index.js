@@ -156,17 +156,25 @@ client.once('ready', async () =>
 const { twitchNotify, youtubeNotification } = require('./functions/loopFunctions/notifications.js');
 
 
-
+/*
 twitchNotify(client);
 
 setInterval(
   twitchNotify, 66000, client
-)
-
+)*/
+/*
 youtubeNotification(client);
 
 setInterval(
   youtubeNotification, 90000, client
+)*/
+
+const { decorationChannelsLoop } = require('./functions/decorationChannels/decorationChannels.js');
+
+decorationChannelsLoop(client);
+
+setInterval(
+  decorationChannelsLoop, 10000, client
 )
 
 //===================================================COMMAND HANDLER=========================================================//

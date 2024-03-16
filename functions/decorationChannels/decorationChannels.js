@@ -1,12 +1,14 @@
 const DecorationChannels = require('../../models/DecorationChannels.js');
 
-async function decorationChannels() {
+const { ALL_VARS, TWITCH_VARS, getArg, categories } = require('./decoration-vars.js');
+
+async function decorationChannelsLoop(client) {
     const guildDChannels = await DecorationChannels.findOne({
         guildID: process.env.GUILD_ID
     }).exec();
 
 
-    if(decorationChannels == null) {}
+    if(guildDChannels == null) {}
     else 
     {
       const dChannels = await guildDChannels.channels;
@@ -20,71 +22,60 @@ async function decorationChannels() {
         {
         
           await guild.members.fetch();
-          const dChannel = guild.channels.cache.get(`${dChannels[i].discord_channelID}`);
 
-          if(dChannel == null) //Si el canal solicitado ya no existe se elimina de la DB
+          const dChannel = dChannels[i];
+          const discord_Channel = guild.channels.cache.get(`${dChannel.discord_channelID}`);
+          
+
+          if(discord_Channel == null) //Si el canal solicitado ya no existe se elimina de la DB
           {
-            var newDChannels = dChannels.filter(elemento => elemento != dChannels[i])
+            var newDChannels = dChannels.filter(elemento => elemento != dChannel)
             await guildDChannels.updateOne({
               channels: newDChannels
             });
 
-            console.log(`Se ha removido de la lista el canal`);
+            console.log(`Canal ${dChannel.displayTitle} eliminado de la DB por no existir en el servidor.`);
           }
           else 
           {
-            let titleUpdate = `${dChannels[i].title}`
-
-            const NotifierModel = require('./models/Notifier.js');
+            const NotifierModel = require('../../models/Notifier.js');
 
             const notifier = await NotifierModel.findOne({
               guildID: process.env.GUILD_ID
             }).exec();
 
-            const TwitchAPI = require('node-twitch').default;
+            const dChannelElements = dChannel.titleElements;
+            const dChannelVars = dChannel.variables;
 
-            const twitch = new TwitchAPI({
-                client_id: process.env.TwitchCLIENTID,
-                client_secret: process.env.TwitchTOKEN 
+            const newVariablesValues = [...dChannelElements];
+
+            for(let i = 0; i < dChannelVars.length; i++) 
+            {
+                const actualVar = dChannelVars[i];
+                const elementIndex = dChannelElements.findIndex(element => element.includes(actualVar));
+
+                const args = ALL_VARS[actualVar].hasArgs ? getArg(dChannelElements[elementIndex]) : null;
+                const variableValue = await ALL_VARS[actualVar].get_function(args, {guild_id: guildDChannels.guildID});
+
+                newVariablesValues[elementIndex] = variableValue;
+            }
+
+            const newDisplayTitle = newVariablesValues.join(' ');
+
+            if(newDisplayTitle == dChannel.displayTitle) return console.log("Sin cambios que registrar");
+
+            discord_Channel.edit({name: newDisplayTitle}); //EDITAR EL CANAL
+           
+            dChannel.variablesValues = newVariablesValues;
+            dChannel.displayTitle = newDisplayTitle;
+
+            await guildDChannels.updateOne({
+              channels: dChannels
             });
-
-            if(titleUpdate.search(/{MemberCount}/) != -1) //VARIABLE CONTADOR DE MIEMBROS
-            { 
-              const MemberCount = guild.memberCount;
-              const botsCount = await guild.members.cache.filter(member => member.user.bot).size;
-
-              titleUpdate = titleUpdate.replace(/{MemberCount}/, `${MemberCount - botsCount}`);
-            }
-
-            if(titleUpdate.search(/{LiveStatus}/) != -1 && notifier != null && notifier.Twitch != []) //VARIABLE DE STREAM ON/OFF
-            {
-              const twitchUserName = await notifier.Twitch[0].twitchUser;
-              await twitch.getStreams({ channel: `${twitchUserName}` }).then(async data => 
-              {
-                const r = data.data[0];
-
-                if(r != undefined) 
-                {
-                  titleUpdate = titleUpdate.replace(/{LiveStatus}/, `ON`); //ON
-                } 
-                else titleUpdate = titleUpdate.replace(/{LiveStatus}/, `OFF`); //OFF
-              });
-
-            }
-            /*
-            if(titleUpdate.search(/{FollowCount}/) != -1 && notifier != null && notifier.Twitch != [])  //VARIABLE DE SEGUIDORES EN TWITCH
-            {
-              const twitchUserName = await notifier.Twitch[0].twitchUser;
-              const twitchUserData = await twitch.getUsers(`${twitchUserName}`);
-              console.log(twitchUserData + "\n\n");
-              const follows = await twitch.getFollows({to_id: twitchUserData.data[0].id});
-              console.log(follows)
-
-              titleUpdate = titleUpdate.replace(/{FollowCount}/, follows.total);
-            }*/ 
-            dChannel.edit({name: titleUpdate}); //EDITAR EL CANAL
           }
         }
       }
     }   
 }
+
+module.exports = { decorationChannelsLoop };

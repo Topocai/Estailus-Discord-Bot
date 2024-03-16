@@ -22,20 +22,29 @@ const TWITCH_VARS = {
     },
 }
 
-function getArg(varKey) {
+function getArg(varKey) 
+{
     const varKeySplit = varKey.split(':');
     return varKeySplit[1];
 }
 
-TWITCH_VARS["<live_game>"].get_function = async (twitch_user, {}) => {
-    return await twitchFunctionsCaller({ twitchUserLogin: twitch_user }, twitchFunctions.getStreamInfo).then(streamInfo => {
+TWITCH_VARS["<live_game>"].get_function = async (twitch_user, {}) => 
+{
+    return await twitchFunctionsCaller(
+        { twitchUserLogin: twitch_user },
+         twitchFunctions.getStreamInfo)
+    .then(streamInfo => {
         if(streamInfo == undefined || !streamInfo.game_name) return "Chilling";
         return streamInfo.game_name;
-    });
+    })
+    .catch(err => console.error(err));
 }
 
-TWITCH_VARS["<live_title>"].get_function = async (twitch_user, {guild_id}) => {
-    const Notifier = await NotifierModel.findOne({guildID: guild_id}).exec();
+TWITCH_VARS["<live_title>"].get_function = async (twitch_user, {guild_id}) => 
+{
+    const Notifier = await NotifierModel.findOne({
+        guildID: guild_id
+    }).exec();
 
     if(Notifier == null) return new Error("Sin registros de notificadores");
 
@@ -48,25 +57,21 @@ TWITCH_VARS["<live_title>"].get_function = async (twitch_user, {guild_id}) => {
 }
 
 TWITCH_VARS["<live_status>"].get_function = async (twitch_user, {}) => {
-    return await twitchFunctionsCaller({ twitchUserLogin: twitch_user }, twitchFunctions.getStreamInfo).then(streamInfo => {
-        if(streamInfo == undefined) return 'OFF';
-        if(streamInfo.type == 'live') return 'ON';
-        else return 'OFF';
-    });
-}
-
-const test_vars = {
-    '<test>': {
-        name: 'Test',
-        description: 'Test',
-        hasArgs: true
-    }
+    return await twitchFunctionsCaller(
+        { twitchUserLogin: twitch_user },
+        twitchFunctions.getStreamInfo)
+    .then(streamInfo => {
+        if(streamInfo instanceof Error) return streamInfo;
+        if(streamInfo == null || streamInfo.type != 'live') return 'OFF';
+        else return 'ON';
+    })
+    .catch(err => console.error(err));;
 }
 
 const categories = {
     'Twitch': TWITCH_VARS
 }
 
-const ALL_VARS = {...TWITCH_VARS, ...test_vars};
+const ALL_VARS = {...TWITCH_VARS };
 
 module.exports = { ALL_VARS, TWITCH_VARS, getArg, categories }
